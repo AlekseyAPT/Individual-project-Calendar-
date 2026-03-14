@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Учебный Календарь</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=Nunito:wght@400;600&family=Poppins:wght@600;700&family=Quicksand:wght@500;600&family=Varela+Round&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Уведомления -->
+<div id="notification" class="notification"></div>
+
+<!-- Заставка при входе -->
+<div id="splashScreen" class="splash-screen hidden">
+    <div class="splash-content">
+        <div class="splash-logo">📚</div>
+        <h1>Учебный Календарь</h1>
+        <p>Загружаем твоё расписание...</p>
+        <div class="splash-loader"></div>
+    </div>
+</div>
+
+<!-- Контейнер авторизации -->
+<div class="container" id="container">
+    
+    <!-- ФОРМА РЕГИСТРАЦИИ -->
+    <div class="form-container sign-up-container">
+        <form id="registerForm">
+            <h1>Начни учиться с умом 🎓</h1>
+            <span>Создай аккаунт для планирования учёбы</span>
+            <input type="text" id="regName" placeholder="Как к тебе обращаться?" required />
+            <input type="text" id="regLogin" placeholder="Придумай логин" required pattern="[A-Za-z0-9_]{3,20}" title="Логин: 3-20 символов, только буквы и цифры." />
+            <input type="password" id="regPassword" placeholder="Придумай пароль" required minlength="6" />
+            <button type="submit">Создать аккаунт</button>
+        </form>
+    </div>
+
+    <!-- ФОРМА ВХОДА -->
+    <div class="form-container sign-in-container">
+        <form id="loginForm">
+            <h1>С возвращением! 👋</h1>
+            <span>Войди в свой учебный календарь</span>
+            <input type="text" id="loginInput" placeholder="Твой логин" required />
+            <input type="password" id="loginPassword" placeholder="Пароль" required />
+            <a href="#" id="forgotPasswordLink">Забыли пароль?</a>
+            <button type="submit">Войти в календарь</button>
+        </form>
+    </div>
+
+    <!-- ПАНЕЛЬ ПЕРЕКЛЮЧЕНИЯ -->
+    <div class="overlay-container">
+        <div class="overlay">
+            <div class="overlay-panel overlay-left">
+                <h1>Уже с нами?</h1>
+                <p>Войди, чтобы увидеть своё расписание, дедлайны и учебные цели</p>
+                <button class="ghost" id="signIn">Войти</button>
+            </div>
+            <div class="overlay-panel overlay-right">
+                <h1>Привет, студент! 📚</h1>
+                <p>Зарегистрируйся и начни планировать свою учёбу без стресса</p>
+                <button class="ghost" id="signUp">Регистрация</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно восстановления пароля -->
+<div id="resetModal" class="modal">
+    <div class="modal-content" id="resetModalContent">
+        <span class="close">&times;</span>
+        <h2>Восстановление пароля 🔐</h2>
+        <p>Введите ваш логин и новый пароль</p>
+        <form id="resetForm">
+            <input type="text" id="resetLogin" placeholder="Ваш логин" required />
+            <input type="password" id="resetPassword" placeholder="Новый пароль (мин. 6 символов)" required minlength="6" />
+            <button type="submit">Сменить пароль</button>
+        </form>
+    </div>
+</div>
+
+<!-- Модальное окно добавления/редактирования события -->
+<div id="eventModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeEventModal">&times;</span>
+        <h2 id="eventModalTitle">Добавить событие 📌</h2>
+        <form id="eventForm">
+            <input type="hidden" id="eventId" />
+            <input type="text" id="eventTitle" placeholder="Название события" required />
+            <select id="eventType" required>
+                <option value="task">📚 Задание</option>
+                <option value="deadline">⏰ Дедлайн</option>
+                <option value="exam">📝 Экзамен</option>
+            </select>
+            <select id="eventPriority" required>
+                <option value="low">🟢 Низкий приоритет</option>
+                <option value="medium" selected>🟡 Средний приоритет</option>
+                <option value="high">🔴 Высокий приоритет</option>
+            </select>
+            <input type="date" id="eventDate" required />
+            <input type="time" id="eventTime" />
+            <textarea id="eventDescription" placeholder="Описание (необязательно)" rows="3"></textarea>
+            <button type="submit">Сохранить</button>
+        </form>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения удаления -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeDeleteModal">&times;</span>
+        <h2>Удалить событие? ⚠️</h2>
+        <p>Вы уверены, что хотите удалить это событие?</p>
+        <input type="hidden" id="deleteEventId" />
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+            <button id="confirmDelete" style="background-color: #f44336;">Удалить</button>
+            <button id="cancelDelete" class="ghost" style="border-color: #333; color: #333;">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно Pomodoro -->
+<div id="pomodoroModal" class="modal">
+    <div class="modal-content pomodoro-content">
+        <span class="close" id="closePomodoroModal">&times;</span>
+        <h2>🍅 Pomodoro Таймер</h2>
+        
+        <!-- Настройки времени -->
+        <div class="pomodoro-settings">
+            <div class="setting-group">
+                <label>📚 Работа (минуты):</label>
+                <select id="workTimeSelect">
+                    <option value="10">10 мин</option>
+                    <option value="20">20 мин</option>
+                    <option value="30" selected>30 мин</option>
+                    <option value="40">40 мин</option>
+                    <option value="50">50 мин</option>
+                    <option value="60">60 мин</option>
+                </select>
+            </div>
+            <div class="setting-group">
+                <label>☕ Перерыв (минуты):</label>
+                <select id="breakTimeSelect">
+                    <option value="5">5 мин</option>
+                    <option value="10">10 мин</option>
+                    <option value="15" selected>15 мин</option>
+                    <option value="20">20 мин</option>
+                    <option value="25">25 мин</option>
+                    <option value="30">30 мин</option>
+                </select>
+            </div>
+            <button id="savePomodoroSettings" class="settings-btn">💾 Сохранить настройки</button>
+        </div>
+        
+        <div class="pomodoro-display">
+            <div id="pomodoroTime" class="pomodoro-time">30:00</div>
+            <div id="pomodoroStatus" class="pomodoro-status">Время учиться!</div>
+        </div>
+        <div class="pomodoro-controls">
+            <button id="startPomodoro" class="pomodoro-btn start">▶ Старт</button>
+            <button id="pausePomodoro" class="pomodoro-btn pause">⏸ Пауза</button>
+            <button id="resetPomodoro" class="pomodoro-btn reset">🔄 Сброс</button>
+        </div>
+        <div class="pomodoro-modes">
+            <button id="workMode" class="mode-btn active">📚 Работа</button>
+            <button id="breakMode" class="mode-btn">☕ Перерыв</button>
+        </div>
+        <div class="pomodoro-stats">
+            <p>Завершено сессий: <span id="completedSessions">0</span></p>
+        </div>
+    </div>
+</div>
+
+<!-- Личный кабинет (скрыт по умолчанию) -->
+<div id="dashboard" class="dashboard hidden">
+    <div class="dashboard-header">
+        <h1>📅 Мой учебный календарь</h1>
+        <div class="header-actions">
+            <button id="themeToggle" class="theme-btn">🌙 Тёмная тема</button>
+            <button id="openPomodoro" class="pomodoro-open-btn">🍅 Pomodoro</button>
+            <div class="user-info">
+                <span id="userName">Пользователь</span>
+                <button id="logoutBtn" class="logout-btn">Выйти</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="dashboard-content">
+        <div class="welcome-card">
+            <h2>Добро пожаловать! 🎉</h2>
+            <p>Теперь вы можете добавлять события, дедлайны и экзамены в свой календарь.</p>
+        </div>
+        
+        <!-- Статистика -->
+        <div class="stats">
+            <div class="stat-card">
+                <h3>📚 Заданий</h3>
+                <p id="tasksCount">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>⏰ Дедлайнов</h3>
+                <p id="deadlinesCount">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>📝 Экзаменов</h3>
+                <p id="examsCount">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>✅ Выполнено</h3>
+                <p id="completedCount">0</p>
+            </div>
+        </div>
+        
+        <!-- Панель управления -->
+        <div class="control-panel">
+            <button id="addEventBtn" class="add-btn">➕ Добавить событие</button>
+            <button id="toggleCalendarBtn" class="toggle-btn">📅 Показать календарь</button>
+            <div class="filters">
+                <select id="filterType">
+                    <option value="all">Все типы</option>
+                    <option value="task">📚 Задания</option>
+                    <option value="deadline">⏰ Дедлайны</option>
+                    <option value="exam">📝 Экзамены</option>
+                </select>
+                <select id="filterPriority">
+                    <option value="all">Все приоритеты</option>
+                    <option value="high">🔴 Высокий</option>
+                    <option value="medium">🟡 Средний</option>
+                    <option value="low">🟢 Низкий</option>
+                </select>
+                <select id="filterStatus">
+                    <option value="all">Все статусы</option>
+                    <option value="pending">⏳ В ожидании</option>
+                    <option value="completed">✅ Выполнено</option>
+                </select>
+                <input type="date" id="filterDate" />
+                <button id="clearFilters" class="ghost">Очистить фильтры</button>
+            </div>
+        </div>
+        
+        <!-- Календарь -->
+        <div id="calendarSection" class="calendar-section hidden">
+            <div class="calendar-header">
+                <button id="prevMonth" class="nav-btn">◀</button>
+                <h3 id="currentMonthYear"></h3>
+                <button id="nextMonth" class="nav-btn">▶</button>
+            </div>
+            <div class="calendar-grid">
+                <div class="calendar-day-header">Пн</div>
+                <div class="calendar-day-header">Вт</div>
+                <div class="calendar-day-header">Ср</div>
+                <div class="calendar-day-header">Чт</div>
+                <div class="calendar-day-header">Пт</div>
+                <div class="calendar-day-header">Сб</div>
+                <div class="calendar-day-header">Вс</div>
+            </div>
+            <div id="calendarDays" class="calendar-days"></div>
+        </div>
+        
+        <!-- Список событий -->
+        <div class="events-section">
+            <h3>📋 Ваши события</h3>
+            <div id="eventsList" class="events-list"></div>
+            <div id="noEvents" class="no-events">
+                <p>Пока нет событий. Добавьте первое! 🎯</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
