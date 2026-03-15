@@ -2,7 +2,21 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#FF4B2B">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Учебный Календарь">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="Твой личный учебный календарь для планирования учёбы">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Иконки для разных устройств -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
     <title>Учебный Календарь</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=Nunito:wght@400;600&family=Poppins:wght@600;700&family=Quicksand:wght@500;600&family=Varela+Round&display=swap" rel="stylesheet">
@@ -31,7 +45,7 @@
             <h1>Начни учиться с умом 🎓</h1>
             <span>Создай аккаунт для планирования учёбы</span>
             <input type="text" id="regName" placeholder="Как к тебе обращаться?" required />
-            <input type="text" id="regLogin" placeholder="Придумай логин" required pattern="[A-Za-z0-9_]{3,20}" title="Логин: 3-20 символов, только буквы и цифры." />
+            <input type="text" id="regLogin" placeholder="Придумай логин" required pattern="[A-Za-z0-9_]{3,20}" title="Логин: 3-20 символов, только буквы, цифры и _" />
             <input type="password" id="regPassword" placeholder="Придумай пароль" required minlength="6" />
             <button type="submit">Создать аккаунт</button>
         </form>
@@ -177,8 +191,8 @@
     <div class="dashboard-header">
         <h1>📅 Мой учебный календарь</h1>
         <div class="header-actions">
-            <button id="themeToggle" class="theme-btn">🌙 Тёмная тема</button>
-            <button id="openPomodoro" class="pomodoro-open-btn">🍅 Pomodoro</button>
+            <button id="themeToggle" class="theme-btn">🌙</button>
+            <button id="openPomodoro" class="pomodoro-open-btn">🍅</button>
             <div class="user-info">
                 <span id="userName">Пользователь</span>
                 <button id="logoutBtn" class="logout-btn">Выйти</button>
@@ -214,8 +228,8 @@
         
         <!-- Панель управления -->
         <div class="control-panel">
-            <button id="addEventBtn" class="add-btn">➕ Добавить событие</button>
-            <button id="toggleCalendarBtn" class="toggle-btn">📅 Показать календарь</button>
+            <button id="addEventBtn" class="add-btn">➕ Добавить</button>
+            <button id="toggleCalendarBtn" class="toggle-btn">📅 Календарь</button>
             <div class="filters">
                 <select id="filterType">
                     <option value="all">Все типы</option>
@@ -235,7 +249,7 @@
                     <option value="completed">✅ Выполнено</option>
                 </select>
                 <input type="date" id="filterDate" />
-                <button id="clearFilters" class="ghost">Очистить фильтры</button>
+                <button id="clearFilters" class="ghost">Очистить</button>
             </div>
         </div>
         
@@ -267,8 +281,51 @@
             </div>
         </div>
     </div>
+    
+    <!-- Нижняя навигация для мобильных -->
+    <div class="mobile-nav">
+        <button class="nav-item active" data-action="home">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Главная</span>
+        </button>
+        <button class="nav-item" data-action="calendar">
+            <span class="nav-icon">📅</span>
+            <span class="nav-label">Календарь</span>
+        </button>
+        <button class="nav-item" data-action="add">
+            <span class="nav-icon">➕</span>
+            <span class="nav-label">Добавить</span>
+        </button>
+        <button class="nav-item" data-action="pomodoro">
+            <span class="nav-icon">🍅</span>
+            <span class="nav-label">Pomodoro</span>
+        </button>
+        <button class="nav-item" data-action="profile">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Профиль</span>
+        </button>
+    </div>
+</div>
+
+<!-- Установка PWA -->
+<div id="installPrompt" class="install-prompt hidden">
+    <div class="install-content">
+        <p>📲 Установи приложение для быстрого доступа!</p>
+        <div class="install-buttons">
+            <button id="installBtn" class="install-btn">Установить</button>
+            <button id="dismissInstall" class="ghost">Позже</button>
+        </div>
+    </div>
 </div>
 
 <script src="script.js"></script>
+<script>
+    // Регистрация Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+            .then(reg => console.log('SW registered:', reg))
+            .catch(err => console.log('SW error:', err));
+    }
+</script>
 </body>
 </html>

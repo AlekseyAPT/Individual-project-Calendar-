@@ -5,17 +5,28 @@ const container = document.getElementById('container');
 
 signUpButton.addEventListener('click', () => {
     container.classList.add("right-panel-active");
+    vibrate(50);
 });
 
 signInButton.addEventListener('click', () => {
     container.classList.remove("right-panel-active");
+    vibrate(50);
 });
+
+// === ВИБРООТКЛИК ===
+function vibrate(duration = 50) {
+    if (navigator.vibrate) {
+        navigator.vibrate(duration);
+    }
+}
 
 // === УВЕДОМЛЕНИЯ ===
 function showNotification(message, type = 'info') {
     const notification = document.getElementById('notification');
     notification.textContent = message;
     notification.className = `notification ${type} show`;
+    
+    vibrate(100);
     
     setTimeout(() => {
         notification.classList.remove('show');
@@ -37,9 +48,13 @@ let completedSessions = 0;
 let workTime = 30;
 let breakTime = 15;
 
+// PWA переменные
+let deferredPrompt = null;
+
 // === РЕГИСТРАЦИЯ ===
 document.getElementById('registerForm').addEventListener('submit', function(e) {
     e.preventDefault();
+    vibrate(50);
     
     const name = document.getElementById('regName').value.trim();
     const login = document.getElementById('regLogin').value.trim();
@@ -88,6 +103,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
 // === ВХОД ===
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
+    vibrate(50);
     
     const login = document.getElementById('loginInput').value.trim();
     const password = document.getElementById('loginPassword').value;
@@ -118,6 +134,7 @@ const forgotPasswordLink = document.getElementById('forgotPasswordLink');
 
 forgotPasswordLink.addEventListener('click', (e) => {
     e.preventDefault();
+    vibrate(50);
     modal.style.display = 'block';
 });
 
@@ -158,6 +175,7 @@ function attachResetFormHandler() {
     if (resetForm) {
         resetForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            vibrate(50);
             
             const login = document.getElementById('resetLogin').value.trim();
             const newPassword = document.getElementById('resetPassword').value;
@@ -226,6 +244,7 @@ function showDashboard(user) {
     loadPomodoroSettings();
     loadPomodoroStats();
     checkUpcomingDeadlines();
+    setupMobileNav();
     
     setTimeout(() => {
         splashScreen.classList.add('hidden');
@@ -237,6 +256,7 @@ function showDashboard(user) {
 document.getElementById('logoutBtn').addEventListener('click', () => {
     localStorage.removeItem('currentUser');
     currentUser = null;
+    vibrate(100);
     
     const splashScreen = document.getElementById('splashScreen');
     if (splashScreen) {
@@ -260,16 +280,63 @@ const themeToggle = document.getElementById('themeToggle');
 themeToggle.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     const isDark = document.body.classList.contains('dark-theme');
-    themeToggle.textContent = isDark ? '☀️ Светлая тема' : '🌙 Тёмная тема';
+    themeToggle.textContent = isDark ? '☀️' : '🌙';
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    vibrate(30);
 });
 
 function loadTheme() {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-theme');
-        themeToggle.textContent = '☀️ Светлая тема';
+        themeToggle.textContent = '☀️';
     }
+}
+
+// === НИЖНЯЯ НАВИГАЦИЯ ===
+function setupMobileNav() {
+    const navItems = document.querySelectorAll('.nav-item');
+    
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            vibrate(30);
+            
+            // Убираем активный класс у всех
+            navItems.forEach(nav => nav.classList.remove('active'));
+            // Добавляем текущему
+            item.classList.add('active');
+            
+            const action = item.dataset.action;
+            
+            switch(action) {
+                case 'home':
+                    // Главная - ничего не делаем
+                    break;
+                case 'calendar':
+                    // Показать календарь
+                    const calendarSection = document.getElementById('calendarSection');
+                    if (calendarSection.classList.contains('hidden')) {
+                        calendarSection.classList.remove('hidden');
+                        document.getElementById('toggleCalendarBtn').textContent = '📅 Скрыть';
+                        renderCalendar();
+                    }
+                    calendarSection.scrollIntoView({ behavior: 'smooth' });
+                    break;
+                case 'add':
+                    // Добавить событие
+                    document.getElementById('addEventBtn').click();
+                    break;
+                case 'pomodoro':
+                    // Открыть Pomodoro
+                    document.getElementById('openPomodoro').click();
+                    break;
+                case 'profile':
+                    // Профиль - скролл к началу
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    break;
+            }
+        });
+    });
 }
 
 // === ЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ===
@@ -349,8 +416,8 @@ function renderEvents(events) {
                 </div>
             </div>
             <div class="event-actions">
-                <button class="edit-btn" onclick="editEvent(${event.id})">✏️ Изменить</button>
-                <button class="delete-btn" onclick="deleteEvent(${event.id})">🗑️ Удалить</button>
+                <button class="edit-btn" onclick="editEvent(${event.id})">✏️</button>
+                <button class="delete-btn" onclick="deleteEvent(${event.id})">🗑️</button>
             </div>
         `;
         
@@ -368,6 +435,7 @@ window.toggleEventComplete = function(id) {
         renderEvents(getFilteredEvents());
         loadUserData(currentUser.id);
         renderCalendar();
+        vibrate(50);
         
         if (allEvents[eventIndex].completed) {
             showNotification('✅ Событие выполнено!', 'success');
@@ -458,6 +526,7 @@ function renderCalendar() {
             
             document.getElementById('filterDate').value = dateStr;
             applyFilters();
+            vibrate(30);
         });
         
         calendarDays.appendChild(dayCell);
@@ -472,6 +541,7 @@ if (prevMonthBtn) {
     prevMonthBtn.addEventListener('click', () => {
         currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
         renderCalendar();
+        vibrate(30);
     });
 }
 
@@ -479,6 +549,7 @@ if (nextMonthBtn) {
     nextMonthBtn.addEventListener('click', () => {
         currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
         renderCalendar();
+        vibrate(30);
     });
 }
 
@@ -492,11 +563,12 @@ if (toggleCalendarBtn) {
             calendarSection.classList.toggle('hidden');
             
             if (calendarSection.classList.contains('hidden')) {
-                toggleCalendarBtn.textContent = '📅 Показать календарь';
+                toggleCalendarBtn.textContent = '📅 Календарь';
             } else {
-                toggleCalendarBtn.textContent = '📅 Скрыть календарь';
+                toggleCalendarBtn.textContent = '📅 Скрыть';
                 renderCalendar();
             }
+            vibrate(30);
         }
     });
 }
@@ -555,6 +627,7 @@ if (clearFiltersBtn) {
             d.classList.remove('selected');
         });
         applyFilters();
+        vibrate(30);
     });
 }
 
@@ -575,6 +648,7 @@ if (addEventBtn) {
         document.getElementById('eventTime').value = '';
         document.getElementById('eventDescription').value = '';
         eventModal.style.display = 'block';
+        vibrate(30);
     });
 }
 
@@ -594,6 +668,7 @@ window.addEventListener('click', (e) => {
 if (eventForm) {
     eventForm.addEventListener('submit', function(e) {
         e.preventDefault();
+        vibrate(50);
         
         const eventId = document.getElementById('eventId').value;
         const title = document.getElementById('eventTitle').value.trim();
@@ -669,6 +744,7 @@ window.editEvent = function(id) {
     document.getElementById('eventDescription').value = event.description || '';
     
     eventModal.style.display = 'block';
+    vibrate(30);
 };
 
 // === УДАЛЕНИЕ СОБЫТИЯ ===
@@ -680,6 +756,7 @@ const cancelDeleteBtn = document.getElementById('cancelDelete');
 window.deleteEvent = function(id) {
     document.getElementById('deleteEventId').value = id;
     deleteModal.style.display = 'block';
+    vibrate(30);
 };
 
 if (closeDeleteModal) {
@@ -704,6 +781,7 @@ if (confirmDeleteBtn) {
         renderCalendar();
         deleteModal.style.display = 'none';
         showNotification('Событие удалено!', 'success');
+        vibrate(100);
     });
 }
 
@@ -734,6 +812,7 @@ if (openPomodoroBtn) {
         pomodoroModal.style.display = 'block';
         loadPomodoroSettings();
         loadPomodoroStats();
+        vibrate(30);
     });
 }
 
@@ -781,6 +860,7 @@ if (savePomodoroSettingsBtn) {
         
         resetPomodoro();
         showNotification('⚙️ Настройки Pomodoro сохранены!', 'success');
+        vibrate(100);
     });
 }
 
@@ -820,10 +900,7 @@ function resetPomodoro() {
 
 function completePomodoro() {
     pausePomodoro();
-    
-    // Звуковое уведомление (опционально)
-    const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleQQAKZXZ8d2QYRgCNJXh9N2OYhgCM5Xg89uQYRcEM5Tf8tqPYBcDLpPe8tuPXxYCK5Pf8dqPXxUAI5Lg8NqPXxQAHpHg79mPXxMAG5Dg7tiPXxIAGY7g7taPXhEAF43g7tWIXhAAGIvg7tSFXg0AF4rg7tOHXgwAFovg7tKFXg0AFozg7tGGXgwAFo7g7tCFXgwAFo/g7s+EXgwAFpDg7s6EXgwAFpHg7s2EXQwAFpDg7s2EXQwAFI7g7s2EXQwAFI7g7s2EXQwAE43g7s2EXQwAEozg7s2EXQwAEovg7s2EXQwAD4rg7s2EXQwADonf7s2EXQwADofe7s2EXQwAC4bd7s2EXQwACoXc7s2EXQwACIPb7s2EXQwAB4La7s2EXQwABYHY7s2EXQwAA4DX7c2EXQwAA4DW7c2EXQsAA');
-    audio.play().catch(() => {});
+    vibrate([100, 50, 100, 50, 200]);
     
     if (isWorkMode) {
         completedSessions++;
@@ -901,6 +978,40 @@ function checkUpcomingDeadlines() {
         const names = upcomingDeadlines.map(e => e.title).join(', ');
         showNotification(`⚠️ Скоро дедлайны: ${names}`, 'warning');
     }
+}
+
+// === PWA INSTALL PROMPT ===
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    const installPrompt = document.getElementById('installPrompt');
+    if (installPrompt) {
+        installPrompt.classList.remove('hidden');
+    }
+});
+
+const installBtn = document.getElementById('installBtn');
+const dismissInstall = document.getElementById('dismissInstall');
+
+if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                showNotification('🎉 Приложение установлено!', 'success');
+            }
+            deferredPrompt = null;
+        }
+        document.getElementById('installPrompt').classList.add('hidden');
+    });
+}
+
+if (dismissInstall) {
+    dismissInstall.addEventListener('click', () => {
+        document.getElementById('installPrompt').classList.add('hidden');
+    });
 }
 
 // === ПРОВЕРКА АВТОРИЗАЦИИ ПРИ ЗАГРУЗКЕ ===
