@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Учебный Календарь</title>
@@ -126,7 +127,6 @@
         <span class="close" id="closePomodoroModal">&times;</span>
         <h2>🍅 Pomodoro Таймер</h2>
         
-        <!-- Настройки времени -->
         <div class="pomodoro-settings">
             <div class="setting-group">
                 <label>📚 Работа (минуты):</label>
@@ -172,7 +172,7 @@
     </div>
 </div>
 
-<!-- Личный кабинет (скрыт по умолчанию) -->
+<!-- Личный кабинет -->
 <div id="dashboard" class="dashboard hidden">
     <div class="dashboard-header">
         <h1>📅 Мой учебный календарь</h1>
@@ -192,27 +192,13 @@
             <p>Теперь вы можете добавлять события, дедлайны и экзамены в свой календарь.</p>
         </div>
         
-        <!-- Статистика -->
         <div class="stats">
-            <div class="stat-card">
-                <h3>📚 Заданий</h3>
-                <p id="tasksCount">0</p>
-            </div>
-            <div class="stat-card">
-                <h3>⏰ Дедлайнов</h3>
-                <p id="deadlinesCount">0</p>
-            </div>
-            <div class="stat-card">
-                <h3>📝 Экзаменов</h3>
-                <p id="examsCount">0</p>
-            </div>
-            <div class="stat-card">
-                <h3>✅ Выполнено</h3>
-                <p id="completedCount">0</p>
-            </div>
+            <div class="stat-card"><h3>📚 Заданий</h3><p id="tasksCount">0</p></div>
+            <div class="stat-card"><h3>⏰ Дедлайнов</h3><p id="deadlinesCount">0</p></div>
+            <div class="stat-card"><h3>📝 Экзаменов</h3><p id="examsCount">0</p></div>
+            <div class="stat-card"><h3>✅ Выполнено</h3><p id="completedCount">0</p></div>
         </div>
         
-        <!-- Панель управления -->
         <div class="control-panel">
             <button id="addEventBtn" class="add-btn">➕ Добавить событие</button>
             <button id="toggleCalendarBtn" class="toggle-btn">📅 Показать календарь</button>
@@ -239,7 +225,6 @@
             </div>
         </div>
         
-        <!-- Календарь -->
         <div id="calendarSection" class="calendar-section hidden">
             <div class="calendar-header">
                 <button id="prevMonth" class="nav-btn">◀</button>
@@ -258,7 +243,6 @@
             <div id="calendarDays" class="calendar-days"></div>
         </div>
         
-        <!-- Список событий -->
         <div class="events-section">
             <h3>📋 Ваши события</h3>
             <div id="eventsList" class="events-list"></div>
